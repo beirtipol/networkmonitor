@@ -1,0 +1,34 @@
+version: "2"
+
+volumes:
+  prometheus_data: {}
+  grafana_data: {}
+
+services:
+  grafana:
+    image: grafana/grafana:7.0.0
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+    env_file:
+      - ./grafana/config.monitoring 
+    depends_on:
+      - prometheus
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - prometheus_data:/prometheus
+      - ./prometheus:/etc/prometheus
+    depends_on:
+      - blackbox
+
+  blackbox:
+    image: prom/blackbox-exporter
+    ports:
+      - 9115:9115
+
